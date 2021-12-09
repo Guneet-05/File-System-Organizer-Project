@@ -32,10 +32,35 @@ function organize(dirpath) {
         console.log('Organized Files Directory already exists')
     }
     
-    organizeHelper(dirpath,destPath)
+    organizeHelper1(dirpath,destPath)
 }
 
-function organizeHelper(src,dest) {
+function organizeWithSub(dirpath) {
+    if(dirpath == undefined) {
+        console.log('Please enter a directory path')
+        return;
+    }
+
+    let pathExists = fs.existsSync(dirpath)
+
+    if(pathExists == false) {
+        console.log('Please enter a valid path')
+        return;
+    }
+
+    //create the organized files directory
+    let destPath = path.join(dirpath,'organized_files')
+
+    if(fs.existsSync(destPath) == false) { //create this organized files directory only if it does not exist previously
+        fs.mkdirSync(destPath)
+    } else {
+        console.log('Organized Files Directory already exists')
+    }
+    
+    organizeHelper2(dirpath,destPath)
+}
+
+function organizeHelper1(src,dest) {
     
     let children = fs.readdirSync(src) //Array of all the files and folders inside the source directory
 
@@ -47,7 +72,32 @@ function organizeHelper(src,dest) {
         if(isFile) {
             let fileCategory = getCategory(children[i])
             sendFiles(childPath,dest,fileCategory)
-        }  
+        } 
+    }
+}
+
+
+function organizeHelper2(src,dest) {
+    
+    let children = fs.readdirSync(src) //Array of all the files and folders inside the source directory
+
+    for(let i=0;i<children.length;i++) {
+
+        let childPath = path.join(src,children[i]) 
+        let isFile = fs.lstatSync(childPath).isFile()
+
+        if(isFile) {
+            let fileCategory = getCategory(children[i])
+            sendFiles(childPath,dest,fileCategory)
+        } else {
+
+            let childName = path.basename(childPath)
+            if(childName === 'organized_files') {
+                continue;
+            } else {
+                organize(childPath)
+            }
+        } 
     }
 }
 
@@ -83,5 +133,6 @@ function sendFiles(srcFilePath,dest,fileCategory) {
 }
 
 module.exports = {
-    organize: organize
+    organize: organize,
+    organizeWithSub: organizeWithSub
 }

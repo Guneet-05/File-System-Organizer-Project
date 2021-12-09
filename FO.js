@@ -16,6 +16,8 @@ const path = require('path')
 const treeObj = require('./Commands/tree')
 const helpObj = require('./Commands/help')
 const organizeObj = require('./Commands/organize')
+const organize = require('./Commands/organize')
+let inquirer = require('inquirer')
 
 let inputArr = process.argv.slice(2) 
 //inputArr[0] = command
@@ -34,7 +36,23 @@ switch(command) {
         break
     
     case 'organize':
-        organizeObj.organize(inputArr[1])
+        // organizeObj.organize(inputArr[1])
+        inquirer
+        .prompt([
+            {
+                type: 'list',
+                name: 'Selection',
+                choices: ['Organize only the Main Directory', 'Organize with all the sub-directories as well'],
+            }
+        ])
+        .then((choices) => {
+            if (choices.Selection === 'Organize only the Main Directory') {
+                organizeObj.organize(inputArr[1])
+
+            } else if (choices.Selection === 'Organize with all the sub-directories as well') {
+                organizeObj.organizeWithSub(inputArr[1])
+            } 
+        })
         break
 
     default:
